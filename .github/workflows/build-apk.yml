@@ -1,0 +1,36 @@
+name: Build APK Kalkulator Usaha
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ambil kode aplikasi
+        uses: actions/checkout@v4
+      - name: Siapkan Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Siapkan Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Pasang Android SDK yang diperlukan
+        run: |
+          yes | sdkmanager --licenses
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+      - name: Siapkan Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Bangun APK debug
+        run: gradle assembleDebug
+      - name: Simpan APK untuk diunduh
+        uses: actions/upload-artifact@v4
+        with:
+          name: Kalkulator-Usaha-debug-APK
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
